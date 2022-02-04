@@ -1,0 +1,45 @@
+---
+title: "Trun-Darvella_R Sktript für Korrespondenzanalyse"
+output:
+  word_document: default
+  pdf_document: default
+---
+Im Folgenden wird ein R Skript für eine Korrespondenzanalyse aufgeführt.
+```{r}
+testnullstellen<-function(x,minnumber){if(sum(x==0)+(minnumber-1)<length(x)) {T} else {F}}
+
+itremove<-function(object,minnumber)
+{
+  nullstellenx<-apply(object,MARGIN=1,FUN=testnullstellen,minnumber=minnumber)
+  nullstelleny<-apply(object,MARGIN=2,FUN=testnullstellen,minnumber=minnumber)
+  if(any(c(nullstellenx,nullstelleny)==F))
+  {
+    return(itremove(object[nullstellenx,nullstelleny],minnumber))}
+  else
+  {return(object)}
+}
+```
+Erster Schritt: Einfügen einer .csv Datei (Semikolon getrennt) für die Variabel path1 (path1 <-"datei.csv") Die .csv Datei muss mit Absenz/Präsenz Daten ausgefüllt sein.
+```{r}
+path1<-"Trun_Darvella_uncut.csv"
+
+Trun<-read.csv2(path1, row.names = 1)
+
+
+
+Trun_cut <- itremove(Trun, 2)
+```
+In diesen ersten Schritten wird die .csv Datei geladen. Mit der Funktion itremove wird in der geladenen Datei die Spalten und Zeilen nach Fundobjekten, welche nur einmal auftreten und Gräbern mit nur einer Beigabe gesucht.
+```{r}
+library(vegan)
+Trun_cut_plot <- cca(Trun_cut)
+plot(Trun_cut_plot, scaling = 3, display = "species")
+```
+Der Graph zeigt die Vergesellschaftung der Fundobjekte und damit welche Fundobjekte möglicherweise ähnlich datieren. 
+```{r}
+Trun_cut_plot <- cca(Trun_cut)
+plot(Trun_cut_plot, scaling = 3, display = "sites")
+```
+Der Graph zeigt welche der Gräber eine ähnliches Inventar aufweisen.
+
+
