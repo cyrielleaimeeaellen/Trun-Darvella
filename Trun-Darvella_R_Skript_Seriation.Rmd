@@ -1,0 +1,43 @@
+---
+title: "Trun-Darvella_R_Skript_Seriation"
+output:
+  word_document: default
+  pdf_document: default
+---
+Im Folgenden wird ein R Skript für die Durchführung einer Seriation aufgeführt.
+
+```{r}
+testnullstellen<-function(x,minnumber){if(sum(x==0)+(minnumber-1)<length(x)) {T} else {F}}
+
+itremove<-function(object,minnumber)
+{
+  nullstellenx<-apply(object,MARGIN=1,FUN=testnullstellen,minnumber=minnumber)
+  nullstelleny<-apply(object,MARGIN=2,FUN=testnullstellen,minnumber=minnumber)
+  if(any(c(nullstellenx,nullstelleny)==F))
+  {
+    return(itremove(object[nullstellenx,nullstelleny],minnumber))}
+  else
+  {return(object)}
+}
+```
+Erster Schritt: Einfügen einer .csv Datei (Semikolon getrennt) für die Variabel path1 (path1 <-“datei.csv”) Die .csv Datei muss mit Absenz/Präsenz Daten ausgefüllt sein.
+
+```{r}
+path1<-"Trun_Darvella_uncut.csv"
+
+Trun<-read.csv2(path1, row.names = 1)
+
+Trun_cut <- itremove(Trun, 2)
+```
+In diesen ersten Schritten wird die .csv Datei geladen. Mit der Funktion itremove wird in der geladenen Datei die Spalten und Zeilen nach Fundobjekten, welche nur einmal auftreten und Gräbern mit nur einer Beigabe gesucht.
+```{r}
+library(tabula)
+
+Trun_S.ca <- cca(Trun_cut)
+Trun_S_sites_cut <- scores(Trun_S.ca, display = "sites", choices = 1)
+Trun_S_species_cut <- scores(Trun_S.ca, display = "species", choices = 1)
+Trun_S_ordered_cut <- as.matrix(Trun_cut[order(Trun_S_sites_cut), order(Trun_S_species_cut)])
+plot_bertin(Trun_S_ordered_cut)
+```
+Der ausgegebene Graph zeigt eine Seriation der Fundobjekte und der Gräber. 
+
